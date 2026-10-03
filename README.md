@@ -197,3 +197,50 @@ MIT – see [LICENSE](LICENSE)
 
 **Again:**  
 This project does not verify whether an exploit actually works against Roblox or a specific Roblox account. Compatibility results are simulated/demo data.
+
+---
+
+## Deploy to GitHub Pages (static demo)
+
+GitHub Pages **cannot** run PHP or Python. A fully static version lives in the `docs/` folder:
+
+- Player lookup → browser → public Roblox APIs (CORS proxy fallback)
+- Forum / comments → **localStorage** in the visitor’s browser
+- Compatibility → pure client-side simulation
+
+### Steps
+
+1. Create a new GitHub repository (e.g. `RobloxHacksForums`).
+2. Upload the whole project (or at least the `docs/` folder).
+3. **Settings → Pages**:
+   - Source: **Deploy from a branch**
+   - Branch: `main` (or `master`)
+   - Folder: **/docs**
+4. Save. After 1–2 minutes the site is at:
+
+```
+https://YOUR_USERNAME.github.io/RobloxHacksForums/
+```
+
+### Local preview of static build
+
+```powershell
+cd RobloxHacksForums\docs
+# Python
+python -m http.server 5500
+# or PHP
+php -S 127.0.0.1:5500
+```
+
+Open http://127.0.0.1:5500
+
+### Limitations on GitHub Pages
+
+| Feature | Behavior |
+|---------|----------|
+| Player lookup | Real public Roblox data (may need CORS proxy) |
+| Compatibility | Simulated only |
+| Forum / comments | Per-browser localStorage (not shared between users) |
+| PHP / Python APIs | Not available |
+
+For full shared SQLite backend, run the PHP + Python stack locally as described above.

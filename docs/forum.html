@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forum – RobloxHacksForums</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="logo">Roblox<span>Hacks</span>Forums</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="forum.html" class="active">Forum</a></li>
+        <li><a href="player.html">Player Lookup</a></li>
+        <li><a href="search.html">Search</a></li>
+      </ul>
+      <form class="search-bar" id="global-search">
+        <span class="icon">🔍</span>
+        <input type="search" placeholder="Search…" aria-label="Search" />
+      </form>
+      <button class="hamburger" aria-label="Menu">☰</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <h3>Categories</h3>
+        <ul class="category-list">
+          <li><a href="#" data-category="">All</a></li>
+          <li><a href="#" data-category="General">General</a></li>
+          <li><a href="#" data-category="Roblox">Roblox</a></li>
+          <li><a href="#" data-category="Exploit Research">Exploit Research</a></li>
+          <li><a href="#" data-category="Compatibility">Compatibility</a></li>
+          <li><a href="#" data-category="Scripts">Scripts</a></li>
+          <li><a href="#" data-category="Development">Development</a></li>
+          <li><a href="#" data-category="Off Topic">Off Topic</a></li>
+          <li><a href="#" data-category="Announcements">Announcements</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-card">
+        <h3>New Thread</h3>
+        <p class="text-muted" style="font-size:0.8rem;margin-bottom:0.5rem">Posts as [DEMO] Anonymous · localStorage</p>
+        <button class="btn btn-primary" style="width:100%" onclick="document.getElementById('new-thread-panel').classList.toggle('hidden')">Create Thread</button>
+      </div>
+      <div class="sidebar-card">
+        <h3>Disclaimer</h3>
+        <p class="disclaimer-box">All content is demo / simulated.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div id="thread-detail" class="hidden"></div>
+      <div id="list-view">
+        <div class="page-header"><h1>Forum</h1></div>
+        <div id="new-thread-panel" class="card hidden mb-2">
+          <h3 style="margin-bottom:0.75rem">Create New Thread</h3>
+          <form id="new-thread-form">
+            <div class="form-group">
+              <label for="nt-title">Title</label>
+              <input id="nt-title" type="text" maxlength="200" required />
+            </div>
+            <div class="form-group">
+              <label for="nt-category">Category</label>
+              <select id="nt-category">
+                <option>General</option><option>Roblox</option><option>Exploit Research</option>
+                <option>Compatibility</option><option>Scripts</option><option>Development</option>
+                <option>Off Topic</option><option>Announcements</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="nt-tags">Tags</label>
+              <input id="nt-tags" type="text" placeholder="demo, ui" />
+            </div>
+            <div class="form-group">
+              <label for="nt-content">Content</label>
+              <textarea id="nt-content" style="width:100%;min-height:120px;padding:0.6rem;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-family:inherit" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Post Thread</button>
+          </form>
+        </div>
+        <div id="thread-list"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p><strong>RobloxHacksForums is a fictional community/demo project.</strong></p>
+    <p>Exploit compatibility results are simulated and should not be treated as verified security or compatibility information.</p>
+  </footer>
+
+  <script>
+    if (new URLSearchParams(location.search).get('id')) {
+      document.getElementById('list-view').classList.add('hidden');
+      document.getElementById('thread-detail').classList.remove('hidden');
+    }
+  </script>
+  <script src="js/app.js"></script>
+  <script src="js/forum.js"></script>
+  <script src="js/comments.js"></script>
+</body>
+</html>
