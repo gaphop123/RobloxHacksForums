@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search – RobloxHacksForums</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="logo">Roblox<span>Hacks</span>Forums</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="forum.html">Forum</a></li>
+        <li><a href="player.html">Player Lookup</a></li>
+        <li><a href="search.html" class="active">Search</a></li>
+      </ul>
+      <form class="search-bar" id="global-search">
+        <span class="icon">🔍</span>
+        <input type="search" placeholder="Search…" aria-label="Search" />
+      </form>
+      <button class="hamburger" aria-label="Menu">☰</button>
+    </div>
+  </nav>
+
+  <div class="container no-sidebar">
+    <main class="main">
+      <div class="page-header">
+        <h1>Search</h1>
+      </div>
+
+      <div class="card mb-2">
+        <form id="search-form">
+          <div class="form-group">
+            <label for="search-q">Query (username, user ID, thread title, exploit…)</label>
+            <input id="search-q" type="search" placeholder="e.g. ExampleUser or ExampleExecutor" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+      </div>
+
+      <div id="search-results"></div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p><strong>RobloxHacksForums is a fictional community/demo project.</strong></p>
+    <p>Exploit compatibility results are simulated and should not be treated as verified security or compatibility information.</p>
+  </footer>
+
+  <script>
+    window.PHP_API_BASE = '../php';
+    window.PYTHON_API_BASE = 'http://127.0.0.1:5000';
+  </script>
+  <script src="js/app.js"></script>
+  <script>
+    (function () {
+      const { apiFetch, showToast, statusBadge, escapeHtml, formatDate, API } = window.RHF;
+      const form = document.getElementById('search-form');
+      const results = document.getElementById('search-results');
+      const input = document.getElementById('search-q');
+
+      // Prefill from URL
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) {
+        input.value = q;
+        doSearch(q);
+      }
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = input.value.trim();
+        if (query) {
+          history.replaceState(null, '', `?q=${encodeURIComponent(query)}`);
+          doSearch(query);
+        }
+      });
+
+      async function doSearch(query) {
+        results.innerHTML = '<div class="card"><div class="skeleton skeleton-line medium"></div><div class="skeleton skeleton-line short"></div></div>';
+        try {
+          // Prefer PHP which proxies to Python
+          let data;
+          try {
+            data = await apiFetch(`${API.phpBase}/search.php?q=${encodeURIComponent(query)}`);
+          } catch {
+            data = await apiFetch(`${API.pyBase}/api/search?q=${encodeURIComponent(query)}`);
+          }
+
+          let html = '';
+
+          // Players
+          if (data.players_error) {
+            html += `<div class="card"><p class="text-muted">${escapeHtml(data.players_error)}</p></div>`;
+          }
+          if (data.players && data.players.length) {
+            html += '<h2 style="margin:1rem 0 0.5rem;font-size:1.1rem">Players (from Roblox API)</h2>';
+            data.players.forEach(p => {
+              html += `
+                <div class="card player-card">
+                  <img class="player-avatar" src="${escapeHtml(p.avatar_url || '')}" alt=""
+                       onerror="this.style.display='none'">
+                  <div class="player-info">
+                    <h2>${escapeHtml(p.display_name || p.username)}</h2>
+                    <p><span class="label">Username:</span> ${escapeHtml(p.username)}</p>
+                    <p><span class="label">User ID:</span> ${escapeHtml(String(p.user_id))}</p>
+                    <p><a href="${escapeHtml(p.profile_url)}" target="_blank" rel="noopener">View Profile ↗</a></p>
+                  </div>
+                </div>`;
+            });
+          }
+
+          // Threads
+          if (data.threads && data.threads.length) {
+            html += '<h2 style="margin:1rem 0 0.5rem;font-size:1.1rem">Threads</h2>';
+            data.threads.forEach(t => {
+              html += `
+                <a href="forum.html?id=${t.id}" class="card thread-card" style="display:grid;text-decoration:none;color:inherit">
+                  <div>
+                    <div class="thread-title">${escapeHtml(t.title)}</div>
+                    <div class="thread-meta">
+                      <span>${escapeHtml(t.author)}</span>
+                      <span>${escapeHtml(t.category)}</span>
+                      <span>${formatDate(t.created_at)}</span>
+                    </div>
+                  </div>
+                  <div class="thread-stats">
+                    <span>${t.views} views</span>
+                    <span>${t.replies} replies</span>
+                  </div>
+                </a>`;
+            });
+          }
+
+          // Exploits
+          if (data.exploits && data.exploits.length) {
+            html += '<h2 style="margin:1rem 0 0.5rem;font-size:1.1rem">Exploits <span class="badge badge-demo">DEMO</span></h2>';
+            data.exploits.forEach(e => {
+              html += `
+                <div class="card">
+                  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+                    <strong>${escapeHtml(e.exploit_name)}</strong>
+                    ${statusBadge(e.simulated_status)}
+                  </div>
+                  <p class="text-muted" style="font-size:0.85rem">v${escapeHtml(e.version || '')} • ${escapeHtml(e.supported_games || '')}</p>
+                </div>`;
+            });
+          }
+
+          if (!html) {
+            html = '<div class="card text-center text-muted">No results found.</div>';
+          }
+          results.innerHTML = html;
+        } catch (err) {
+          results.innerHTML = `<div class="card"><p class="text-muted">Search failed: ${escapeHtml(err.message)}</p></div>`;
+          showToast(err.message, 'error');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
